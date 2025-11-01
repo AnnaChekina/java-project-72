@@ -51,8 +51,30 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
+    public static Optional<Url> findByName(String urlName) throws SQLException {
+        var sql = "SELECT * FROM urls WHERE name = ?";
+
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, urlName);
+            var resultSet = stmt.executeQuery();
+
+            if (resultSet.next()) {
+                var id = resultSet.getLong("id");
+                var name = resultSet.getString("name");
+                var createdAt = resultSet.getTimestamp("created_at");
+                var url = new Url(name);
+                url.setId(id);
+                url.setCreatedAt(createdAt);
+                return Optional.of(url);
+            }
+            return Optional.empty();
+        }
+    }
+
     public static List<Url> getEntities() throws SQLException {
-        var sql = "SELECT * FROM urls ORDER BY created_at DESC";
+        var sql = "SELECT * FROM urls ORDER BY id ASC";
 
         try (var conn = dataSource.getConnection();
              var stmt = conn.prepareStatement(sql);
@@ -71,5 +93,9 @@ public class UrlRepository extends BaseRepository {
             }
             return result;
         }
+    }
+
+    public static boolean exists(String urlName) throws SQLException {
+        return findByName(urlName).isPresent();
     }
 }

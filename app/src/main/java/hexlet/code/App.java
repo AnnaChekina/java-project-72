@@ -2,7 +2,9 @@ package hexlet.code;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import hexlet.code.controller.UrlController;
 import hexlet.code.repository.BaseRepository;
+import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
@@ -44,15 +46,16 @@ public class App {
             config.fileRenderer(new JavalinJte(createTemplateEngine()));
         });
 
-        // Главная страница (только форма)
-        app.get("/", ctx -> ctx.render("index.jte"));
-
-        // Обработчик для добавления URL (заглушка)
-        app.post("/urls", ctx -> {
-            var url = ctx.formParam("url");
-            ctx.contentType("text/html; charset=utf-8");
-            ctx.result("URL добавлен: " + url + " (функциональность в разработке)");
+        // Мидлвара для логирования
+        app.before(ctx -> {
+            System.out.println(ctx.method() + " " + ctx.path());
         });
+
+        // Маршруты
+        app.get(NamedRoutes.rootPath(), UrlController::index);
+        app.post(NamedRoutes.urlsPath(), UrlController::create);
+        app.get(NamedRoutes.urlsPath(), UrlController::list);
+        app.get(NamedRoutes.urlPath("{id}"), UrlController::show);
 
         return app;
     }

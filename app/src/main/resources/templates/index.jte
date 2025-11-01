@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Анализатор страниц</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="container py-5">
+@import hexlet.code.dto.UrlsPage
+@import hexlet.code.util.NamedRoutes
+@param UrlsPage page
+
+@template.layout.page(
+    content = @`
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow">
@@ -17,9 +13,9 @@
                             Бесплатно проверяйте сайты на SEO пригодность
                         </p>
 
-                        <form action="/urls" method="POST" class="mb-4">
+                        <form action="${NamedRoutes.urlsPath()}" method="POST" class="mb-4">
                             <div class="input-group">
-                                <input type="url"
+                                <input type="text"
                                        name="url"
                                        class="form-control form-control-lg"
                                        placeholder="https://example.com"
@@ -33,6 +29,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</body>
-</html>
+    `,
+    page = page
+)
