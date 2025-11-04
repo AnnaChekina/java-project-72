@@ -24,8 +24,8 @@
     </header>
 
     <main class="container py-5">
-        @if(page != null && page.getFlash() != null)
-            <div class="alert alert-${page.getFlashType()} alert-dismissible fade show" role="alert">
+        @if(page != null && page.getFlash() != null && !page.getFlash().isEmpty())
+            <div class="alert alert-${page.getFlashType() != null ? page.getFlashType() : "info"} alert-dismissible fade show" role="alert">
                 ${page.getFlash()}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>

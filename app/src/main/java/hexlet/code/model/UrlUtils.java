@@ -9,9 +9,9 @@ public class UrlUtils {
         try {
             String trimmedUrl = inputUrl.trim();
 
-            // Добавление протокола если отсутствует
+            // Проверяем, что URL содержит протокол
             if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
-                trimmedUrl = "https://" + trimmedUrl;
+                throw new IllegalArgumentException("URL должен содержать протокол (http:// или https://)");
             }
 
             // Парсинг URL через URI
@@ -22,6 +22,11 @@ public class UrlUtils {
             String protocol = url.getProtocol();
             String host = url.getHost();
             int port = url.getPort();
+
+            // Проверяем что host не пустой
+            if (host == null || host.isEmpty()) {
+                throw new IllegalArgumentException("URL должен содержать доменное имя");
+            }
 
             StringBuilder normalized = new StringBuilder();
             normalized.append(protocol).append("://").append(host);
@@ -34,7 +39,7 @@ public class UrlUtils {
             return normalized.toString();
 
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid URL format: " + e.getMessage());
+            throw new IllegalArgumentException("Некорректный URL: " + e.getMessage());
         }
     }
 

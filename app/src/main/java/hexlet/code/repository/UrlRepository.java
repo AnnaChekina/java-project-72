@@ -98,4 +98,12 @@ public class UrlRepository extends BaseRepository {
     public static boolean exists(String urlName) throws SQLException {
         return findByName(urlName).isPresent();
     }
+
+    public static void deleteAll() throws SQLException {
+        var sql = "DELETE FROM urls";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.executeUpdate();
+        }
+    }
 }

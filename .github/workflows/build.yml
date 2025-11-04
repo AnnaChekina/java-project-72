@@ -19,11 +19,13 @@ jobs:
         with:
           gradle-version: "8.13"
       - name: Run Checkstyle
-        run: ./gradlew checkstyleMain
+        run: ./gradlew checkstyleMain checkstyleTest
         working-directory: app
-      - name: Run Tests
-        run: ./gradlew test
+      - name: Run Tests with Coverage
+        run: ./gradlew test jacocoTestReport jacocoTestCoverageVerification
         working-directory: app
+        env:
+          JDBC_DATABASE_URL: jdbc:h2:mem:test
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4

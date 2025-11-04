@@ -10,12 +10,16 @@ import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Map;
 
 public class UrlController {
 
     public static void index(Context ctx) {
-        var page = new UrlsPage(null);
+        var page = new UrlsPage(Collections.emptyList());
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        page.setFlashType(ctx.consumeSessionAttribute("flashType"));
+
         ctx.render("index.jte", Map.of("page", page));
     }
 
@@ -30,10 +34,8 @@ public class UrlController {
         }
 
         try {
-            // Нормализация URL
             String normalizedUrl = UrlUtils.normalizeUrl(inputUrl);
 
-            // Проверка на существование URL
             if (UrlRepository.exists(normalizedUrl)) {
                 ctx.sessionAttribute("flash", "Страница уже существует");
                 ctx.sessionAttribute("flashType", "info");
@@ -41,7 +43,6 @@ public class UrlController {
                 return;
             }
 
-            // Сохранение нового URL
             var url = new Url(normalizedUrl);
             UrlRepository.save(url);
 
@@ -55,10 +56,6 @@ public class UrlController {
             ctx.redirect(NamedRoutes.rootPath());
         } catch (SQLException e) {
             ctx.sessionAttribute("flash", "Ошибка базы данных: " + e.getMessage());
-            ctx.sessionAttribute("flashType", "danger");
-            ctx.redirect(NamedRoutes.rootPath());
-        } catch (Exception e) {
-            ctx.sessionAttribute("flash", "Ошибка: " + e.getMessage());
             ctx.sessionAttribute("flashType", "danger");
             ctx.redirect(NamedRoutes.rootPath());
         }
