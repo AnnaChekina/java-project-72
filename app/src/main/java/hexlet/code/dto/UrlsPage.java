@@ -10,8 +10,24 @@ import java.util.List;
 @Setter
 public class UrlsPage extends BasePage {
     private List<Url> urls;
+    private List<UrlWithCheck> urlWithChecks;
 
-    public UrlsPage(List<Url> urls) {
+    public UrlsPage(List<Url> urls, List<UrlWithCheck> urlWithChecks) {
         this.urls = urls;
+        this.urlWithChecks = urlWithChecks;
+    }
+
+    @Getter
+    @Setter
+    public static class UrlWithCheck {
+        private Url url;
+        private Integer lastStatusCode;
+        private String lastCheckDate;
+
+        public UrlWithCheck(Url url, Integer lastStatusCode, String lastCheckDate) {
+            this.url = url;
+            this.lastStatusCode = lastStatusCode;
+            this.lastCheckDate = lastCheckDate;
+        }
     }
 }

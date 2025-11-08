@@ -35,7 +35,10 @@ dependencies {
     implementation("io.javalin:javalin-rendering:6.6.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.postgresql:postgresql:42.7.3")
+    implementation("com.konghq:unirest-java:3.14.5")
+    implementation("org.jsoup:jsoup:1.18.1")
 
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation(platform("org.junit:junit-bom:5.12.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

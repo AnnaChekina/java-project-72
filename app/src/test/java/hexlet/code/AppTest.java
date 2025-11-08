@@ -4,21 +4,40 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import hexlet.code.model.Url;
 import hexlet.code.repository.UrlRepository;
+import hexlet.code.repository.UrlCheckRepository;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class AppTest {
 
     private Javalin app;
+    private static MockWebServer mockWebServer;
+
+    @BeforeAll
+    static void setUpAll() throws IOException {
+        mockWebServer = new MockWebServer();
+        mockWebServer.start();
+    }
+
+    @AfterAll
+    static void tearDownAll() throws IOException {
+        mockWebServer.shutdown();
+    }
 
     @BeforeEach
     public final void setUp() throws Exception {
         app = App.getApp();
+        UrlCheckRepository.deleteAll();
         UrlRepository.deleteAll();
     }
 
@@ -133,6 +152,67 @@ public class AppTest {
 
             var urls = UrlRepository.getEntities();
             assertThat(urls).isEmpty();
+        });
+    }
+
+    @Test
+    public void testCheckUrlSuccess() throws SQLException {
+        String testUrl = mockWebServer.url("/").toString();
+        var url = new Url(testUrl);
+        UrlRepository.save(url);
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("<title>Test Page</title><h1>Header</h1><meta name=\"description\" content=\"Test desc\">")
+                .setResponseCode(200));
+
+        JavalinTest.test(app, (server, client) -> {
+            client.post("/urls/" + url.getId() + "/checks");
+
+            var checks = UrlCheckRepository.findByUrlId(url.getId());
+            assertThat(checks).hasSize(1);
+
+            var check = checks.getFirst();
+            assertThat(check.getStatusCode()).isEqualTo(200);
+            assertThat(check.getTitle()).isEqualTo("Test Page");
+            assertThat(check.getH1()).isEqualTo("Header");
+            assertThat(check.getDescription()).isEqualTo("Test desc");
+        });
+    }
+
+    @Test
+    public void testCheckUrlWithErrorStatus() throws SQLException {
+        String testUrl = mockWebServer.url("/").toString();
+        var url = new Url(testUrl);
+        UrlRepository.save(url);
+
+        mockWebServer.enqueue(new MockResponse().setResponseCode(404));
+
+        JavalinTest.test(app, (server, client) -> {
+            client.post("/urls/" + url.getId() + "/checks");
+
+            var checks = UrlCheckRepository.findByUrlId(url.getId());
+            assertThat(checks).hasSize(1);
+            assertThat(checks.getFirst().getStatusCode()).isEqualTo(404);
+        });
+    }
+
+    @Test
+    public void testMultipleUrlChecks() throws SQLException {
+        String testUrl = mockWebServer.url("/").toString();
+        var url = new Url(testUrl);
+        UrlRepository.save(url);
+
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+        mockWebServer.enqueue(new MockResponse().setResponseCode(201));
+
+        JavalinTest.test(app, (server, client) -> {
+            client.post("/urls/" + url.getId() + "/checks");
+            client.post("/urls/" + url.getId() + "/checks");
+
+            var checks = UrlCheckRepository.findByUrlId(url.getId());
+            assertThat(checks).hasSize(2);
+            assertThat(checks.get(0).getStatusCode()).isEqualTo(201);
+            assertThat(checks.get(1).getStatusCode()).isEqualTo(200);
         });
     }
 }

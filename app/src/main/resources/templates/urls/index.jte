@@ -25,17 +25,25 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>Имя</th>
-                                            <th>Дата создания</th>
+                                            <th>Последняя проверка</th>
+                                            <th>Код ответа</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @for(var url : page.getUrls())
+                                        @for(var urlWithCheck : page.getUrlWithChecks())
                                             <tr>
-                                                <td>${url.getId()}</td>
+                                                <td>${urlWithCheck.getUrl().getId()}</td>
                                                 <td>
-                                                    <a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a>
+                                                    <a href="${NamedRoutes.urlPath(urlWithCheck.getUrl().getId())}">${urlWithCheck.getUrl().getName()}</a>
                                                 </td>
-                                                <td>${url.getFormattedCreatedAt()}</td>
+                                                <td>${urlWithCheck.getLastCheckDate()}</td>
+                                                <td>
+                                                    @if(urlWithCheck.getLastStatusCode() != null)
+                                                        ${urlWithCheck.getLastStatusCode()}
+                                                    @else
+                                                        <span class="text-muted">—</span>
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endfor
                                     </tbody>

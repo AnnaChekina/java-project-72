@@ -1,7 +1,13 @@
 package hexlet.code.model;
 
+import kong.unirest.Unirest;
+import kong.unirest.HttpResponse;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.net.URI;
 import java.net.URL;
+import java.util.Map;
 
 public class UrlUtils {
 
@@ -50,5 +56,29 @@ public class UrlUtils {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static Map<String, Object> checkUrl(String url) throws Exception {
+        HttpResponse<String> response = Unirest.get(url)
+                .connectTimeout(5000)
+                .asString();
+
+        int statusCode = response.getStatus();
+        String body = response.getBody();
+
+        Document doc = Jsoup.parse(body);
+
+        String title = doc.title();
+        String h1 = doc.selectFirst("h1") != null ? doc.selectFirst("h1").text() : "";
+        String description = doc.selectFirst("meta[name=description]") != null
+                ? doc.selectFirst("meta[name=description]").attr("content")
+                : "";
+
+        return Map.of(
+                "statusCode", statusCode,
+                "title", title,
+                "h1", h1,
+                "description", description
+        );
     }
 }

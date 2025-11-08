@@ -15,7 +15,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header">
@@ -29,6 +29,52 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2>Проверки</h2>
+                            <form action="${NamedRoutes.checkPath(page.getUrl().getId())}" method="POST">
+                                <button type="submit" class="btn btn-primary">Запустить проверку</button>
+                            </form>
+                        </div>
+
+                        @if(page.getChecks().isEmpty())
+                            <div class="text-center py-4">
+                                <p class="text-muted">Проверок еще не было</p>
+                            </div>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Код ответа</th>
+                                            <th>Заголовок</th>
+                                            <th>H1</th>
+                                            <th>Description</th>
+                                            <th>Дата проверки</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for(var check : page.getChecks())
+                                            <tr>
+                                                <td>${check.getId()}</td>
+                                                <td>${check.getStatusCode()}</td>
+                                                <td>${check.getTitle() != null ? check.getTitle() : ""}</td>
+                                                <td>${check.getH1() != null ? check.getH1() : ""}</td>
+                                                <td>
+                                                    @if(check.getDescription() != null && check.getDescription().length() > 50)
+                                                        ${check.getDescription().substring(0, 50)}...
+                                                    @else
+                                                        ${check.getDescription() != null ? check.getDescription() : ""}
+                                                    @endif
+                                                </td>
+                                                <td>${check.getFormattedCreatedAt()}</td>
+                                            </tr>
+                                        @endfor
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
