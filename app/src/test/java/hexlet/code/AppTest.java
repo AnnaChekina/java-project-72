@@ -18,7 +18,7 @@ import io.javalin.testtools.JavalinTest;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class AppTest {
+class AppTest {
 
     private Javalin app;
     private static MockWebServer mockWebServer;
@@ -35,14 +35,14 @@ public class AppTest {
     }
 
     @BeforeEach
-    public final void setUp() throws Exception {
+    final void setUp() throws Exception {
         app = App.getApp();
         UrlCheckRepository.deleteAll();
         UrlRepository.deleteAll();
     }
 
     @Test
-    public void testMainPage() {
+    void testMainPage() {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/");
             assertThat(response.code()).isEqualTo(200);
@@ -52,7 +52,7 @@ public class AppTest {
     }
 
     @Test
-    public void testUrlsPage() {
+    void testUrlsPage() {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/urls");
             assertThat(response.code()).isEqualTo(200);
@@ -62,7 +62,7 @@ public class AppTest {
     }
 
     @Test
-    public void testUrlPage() throws SQLException {
+    void testUrlPage() throws SQLException {
         var url = new Url("https://example.com");
         UrlRepository.save(url);
 
@@ -75,7 +75,7 @@ public class AppTest {
     }
 
     @Test
-    public void testUrlNotFound() {
+    void testUrlNotFound() {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/urls/999999");
             assertThat(response.code()).isEqualTo(404);
@@ -83,7 +83,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCreateValidUrl() {
+    void testCreateValidUrl() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=https://example.com";
             var response = client.post("/urls", requestBody);
@@ -96,7 +96,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCreateUrlWithNormalization() {
+    void testCreateUrlWithNormalization() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=https://example.com:443/path/to/page?query=string";
             var response = client.post("/urls", requestBody);
@@ -109,7 +109,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCreateUrlWithEmptyUrl() {
+    void testCreateUrlWithEmptyUrl() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=";
             var response = client.post("/urls", requestBody);
@@ -125,7 +125,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCreateDuplicateUrl() throws SQLException {
+    void testCreateDuplicateUrl() throws SQLException {
         var url = new Url("https://duplicate.com");
         UrlRepository.save(url);
 
@@ -140,7 +140,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCreateUrlWithoutProtocol() {
+    void testCreateUrlWithoutProtocol() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=example.com";
             var response = client.post("/urls", requestBody);
@@ -156,7 +156,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCheckUrlSuccess() throws SQLException {
+    void testCheckUrlSuccess() throws SQLException {
         String testUrl = mockWebServer.url("/").toString();
         var url = new Url(testUrl);
         UrlRepository.save(url);
@@ -180,7 +180,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCheckUrlWithErrorStatus() throws SQLException {
+    void testCheckUrlWithErrorStatus() throws SQLException {
         String testUrl = mockWebServer.url("/").toString();
         var url = new Url(testUrl);
         UrlRepository.save(url);
@@ -197,7 +197,7 @@ public class AppTest {
     }
 
     @Test
-    public void testMultipleUrlChecks() throws SQLException {
+    void testMultipleUrlChecks() throws SQLException {
         String testUrl = mockWebServer.url("/").toString();
         var url = new Url(testUrl);
         UrlRepository.save(url);
