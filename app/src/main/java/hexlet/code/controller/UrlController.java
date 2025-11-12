@@ -82,12 +82,13 @@ public class UrlController {
 
     public static void list(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
+        var latestChecks = UrlCheckRepository.findLatestChecks();
         var urlWithChecks = new ArrayList<UrlsPage.UrlWithCheck>();
 
         for (var url : urls) {
-            var lastCheck = UrlCheckRepository.findLatestCheck(url.getId());
-            var lastStatusCode = lastCheck.map(UrlCheck::getStatusCode).orElse(null);
-            var lastCheckDate = lastCheck.map(UrlCheck::getFormattedCreatedAt).orElse("");
+            var lastCheck = latestChecks.get(url.getId());
+            var lastStatusCode = lastCheck != null ? lastCheck.getStatusCode() : null;
+            var lastCheckDate = lastCheck != null ? lastCheck.getFormattedCreatedAt() : "";
 
             urlWithChecks.add(new UrlsPage.UrlWithCheck(url, lastStatusCode, lastCheckDate));
         }
