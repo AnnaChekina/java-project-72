@@ -48,8 +48,11 @@ class AppTest {
         if (app != null) {
             app.stop();
         }
-        // Сбрасываем dataSource чтобы следующее создание приложения работало корректно
-        BaseRepository.dataSource = null;
+        // Правильно закрываем DataSource чтобы освободить соединения
+        if (BaseRepository.dataSource != null) {
+            BaseRepository.dataSource.close();
+            BaseRepository.dataSource = null;
+        }
     }
 
     @Test
