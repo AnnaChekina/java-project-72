@@ -24,7 +24,9 @@ public class App {
     }
 
     public static Javalin getApp() throws Exception {
-        var hikariConfig = new HikariConfig();
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setMaximumPoolSize(5);
+        hikariConfig.setMinimumIdle(2);
 
         String jdbcUrl = System.getenv().getOrDefault("JDBC_DATABASE_URL",
                 "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");

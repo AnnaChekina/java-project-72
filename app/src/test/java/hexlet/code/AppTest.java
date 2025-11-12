@@ -3,13 +3,11 @@ package hexlet.code;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import hexlet.code.model.Url;
-import hexlet.code.repository.BaseRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.repository.UrlCheckRepository;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,18 +39,6 @@ class AppTest {
         app = App.getApp();
         UrlCheckRepository.deleteAll();
         UrlRepository.deleteAll();
-    }
-
-    @AfterEach
-    final void tearDown() {
-        if (app != null) {
-            app.stop();
-        }
-        // Правильно закрываем DataSource чтобы освободить соединения
-        if (BaseRepository.dataSource != null) {
-            BaseRepository.dataSource.close();
-            BaseRepository.dataSource = null;
-        }
     }
 
     @Test
@@ -103,13 +89,9 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            try {
-                var urls = UrlRepository.getEntities();
-                assertThat(urls).hasSize(1);
-                assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var urls = UrlRepository.getEntities();
+            assertThat(urls).hasSize(1);
+            assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
         });
     }
 
@@ -120,13 +102,9 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            try {
-                var urls = UrlRepository.getEntities();
-                assertThat(urls).hasSize(1);
-                assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var urls = UrlRepository.getEntities();
+            assertThat(urls).hasSize(1);
+            assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
         });
     }
 
@@ -141,12 +119,8 @@ class AppTest {
             var body = response.body().string();
             assertThat(body).contains("Анализатор страниц");
 
-            try {
-                var urls = UrlRepository.getEntities();
-                assertThat(urls).isEmpty();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var urls = UrlRepository.getEntities();
+            assertThat(urls).isEmpty();
         });
     }
 
@@ -160,12 +134,8 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            try {
-                var urls = UrlRepository.getEntities();
-                assertThat(urls).hasSize(1);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var urls = UrlRepository.getEntities();
+            assertThat(urls).hasSize(1); // Все еще одна запись, дубликат не добавился
         });
     }
 
@@ -180,12 +150,8 @@ class AppTest {
             var body = response.body().string();
             assertThat(body).contains("Анализатор страниц");
 
-            try {
-                var urls = UrlRepository.getEntities();
-                assertThat(urls).isEmpty();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var urls = UrlRepository.getEntities();
+            assertThat(urls).isEmpty();
         });
     }
 
@@ -202,18 +168,14 @@ class AppTest {
         JavalinTest.test(app, (server, client) -> {
             client.post("/urls/" + url.getId() + "/checks");
 
-            try {
-                var checks = UrlCheckRepository.findByUrlId(url.getId());
-                assertThat(checks).hasSize(1);
+            var checks = UrlCheckRepository.findByUrlId(url.getId());
+            assertThat(checks).hasSize(1);
 
-                var check = checks.getFirst();
-                assertThat(check.getStatusCode()).isEqualTo(200);
-                assertThat(check.getTitle()).isEqualTo("Test Page");
-                assertThat(check.getH1()).isEqualTo("Header");
-                assertThat(check.getDescription()).isEqualTo("Test desc");
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var check = checks.getFirst();
+            assertThat(check.getStatusCode()).isEqualTo(200);
+            assertThat(check.getTitle()).isEqualTo("Test Page");
+            assertThat(check.getH1()).isEqualTo("Header");
+            assertThat(check.getDescription()).isEqualTo("Test desc");
         });
     }
 
@@ -228,13 +190,9 @@ class AppTest {
         JavalinTest.test(app, (server, client) -> {
             client.post("/urls/" + url.getId() + "/checks");
 
-            try {
-                var checks = UrlCheckRepository.findByUrlId(url.getId());
-                assertThat(checks).hasSize(1);
-                assertThat(checks.getFirst().getStatusCode()).isEqualTo(404);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var checks = UrlCheckRepository.findByUrlId(url.getId());
+            assertThat(checks).hasSize(1);
+            assertThat(checks.getFirst().getStatusCode()).isEqualTo(404);
         });
     }
 
@@ -251,14 +209,10 @@ class AppTest {
             client.post("/urls/" + url.getId() + "/checks");
             client.post("/urls/" + url.getId() + "/checks");
 
-            try {
-                var checks = UrlCheckRepository.findByUrlId(url.getId());
-                assertThat(checks).hasSize(2);
-                assertThat(checks.get(0).getStatusCode()).isEqualTo(201);
-                assertThat(checks.get(1).getStatusCode()).isEqualTo(200);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            var checks = UrlCheckRepository.findByUrlId(url.getId());
+            assertThat(checks).hasSize(2);
+            assertThat(checks.get(0).getStatusCode()).isEqualTo(201);
+            assertThat(checks.get(1).getStatusCode()).isEqualTo(200);
         });
     }
 }
