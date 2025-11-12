@@ -3,7 +3,6 @@ package hexlet.code.controller;
 import hexlet.code.dto.UrlPage;
 import hexlet.code.dto.UrlsPage;
 import hexlet.code.model.Url;
-import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
@@ -106,15 +105,8 @@ public class UrlController {
                 .orElseThrow(() -> new NotFoundResponse("URL not found"));
 
         try {
-            var checkData = UrlUtils.checkUrl(url.getName());
-
-            var urlCheck = new UrlCheck(
-                    (Integer) checkData.get("statusCode"),
-                    (String) checkData.get("title"),
-                    (String) checkData.get("h1"),
-                    (String) checkData.get("description"),
-                    url.getId()
-            );
+            var urlCheck = UrlUtils.checkUrl(url.getName());
+            urlCheck.setUrlId(url.getId());
 
             UrlCheckRepository.save(urlCheck);
 

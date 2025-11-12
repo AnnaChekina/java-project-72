@@ -7,7 +7,6 @@ import org.jsoup.nodes.Document;
 
 import java.net.URI;
 import java.net.URL;
-import java.util.Map;
 
 public class UrlUtils {
 
@@ -58,7 +57,7 @@ public class UrlUtils {
         }
     }
 
-    public static Map<String, Object> checkUrl(String url) throws Exception {
+    public static UrlCheck checkUrl(String url) throws Exception {
         HttpResponse<String> response = Unirest.get(url)
                 .connectTimeout(5000)
                 .asString();
@@ -74,11 +73,6 @@ public class UrlUtils {
                 ? doc.selectFirst("meta[name=description]").attr("content")
                 : "";
 
-        return Map.of(
-                "statusCode", statusCode,
-                "title", title,
-                "h1", h1,
-                "description", description
-        );
+        return new UrlCheck(statusCode, title, h1, description, null);
     }
 }
