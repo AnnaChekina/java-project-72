@@ -3,11 +3,13 @@ package hexlet.code;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import hexlet.code.model.Url;
+import hexlet.code.repository.BaseRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.repository.UrlCheckRepository;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,15 @@ class AppTest {
         app = App.getApp();
         UrlCheckRepository.deleteAll();
         UrlRepository.deleteAll();
+    }
+
+    @AfterEach
+    final void tearDown() {
+        if (app != null) {
+            app.stop();
+        }
+        // Сбрасываем dataSource чтобы следующее создание приложения работало корректно
+        BaseRepository.dataSource = null;
     }
 
     @Test
@@ -89,9 +100,13 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            var urls = UrlRepository.getEntities();
-            assertThat(urls).hasSize(1);
-            assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
+            try {
+                var urls = UrlRepository.getEntities();
+                assertThat(urls).hasSize(1);
+                assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -102,9 +117,13 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            var urls = UrlRepository.getEntities();
-            assertThat(urls).hasSize(1);
-            assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
+            try {
+                var urls = UrlRepository.getEntities();
+                assertThat(urls).hasSize(1);
+                assertThat(urls.getFirst().getName()).isEqualTo("https://example.com");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -119,8 +138,12 @@ class AppTest {
             var body = response.body().string();
             assertThat(body).contains("Анализатор страниц");
 
-            var urls = UrlRepository.getEntities();
-            assertThat(urls).isEmpty();
+            try {
+                var urls = UrlRepository.getEntities();
+                assertThat(urls).isEmpty();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -134,8 +157,12 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            var urls = UrlRepository.getEntities();
-            assertThat(urls).hasSize(1); // Все еще одна запись, дубликат не добавился
+            try {
+                var urls = UrlRepository.getEntities();
+                assertThat(urls).hasSize(1);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -150,8 +177,12 @@ class AppTest {
             var body = response.body().string();
             assertThat(body).contains("Анализатор страниц");
 
-            var urls = UrlRepository.getEntities();
-            assertThat(urls).isEmpty();
+            try {
+                var urls = UrlRepository.getEntities();
+                assertThat(urls).isEmpty();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -168,14 +199,18 @@ class AppTest {
         JavalinTest.test(app, (server, client) -> {
             client.post("/urls/" + url.getId() + "/checks");
 
-            var checks = UrlCheckRepository.findByUrlId(url.getId());
-            assertThat(checks).hasSize(1);
+            try {
+                var checks = UrlCheckRepository.findByUrlId(url.getId());
+                assertThat(checks).hasSize(1);
 
-            var check = checks.getFirst();
-            assertThat(check.getStatusCode()).isEqualTo(200);
-            assertThat(check.getTitle()).isEqualTo("Test Page");
-            assertThat(check.getH1()).isEqualTo("Header");
-            assertThat(check.getDescription()).isEqualTo("Test desc");
+                var check = checks.getFirst();
+                assertThat(check.getStatusCode()).isEqualTo(200);
+                assertThat(check.getTitle()).isEqualTo("Test Page");
+                assertThat(check.getH1()).isEqualTo("Header");
+                assertThat(check.getDescription()).isEqualTo("Test desc");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -190,9 +225,13 @@ class AppTest {
         JavalinTest.test(app, (server, client) -> {
             client.post("/urls/" + url.getId() + "/checks");
 
-            var checks = UrlCheckRepository.findByUrlId(url.getId());
-            assertThat(checks).hasSize(1);
-            assertThat(checks.getFirst().getStatusCode()).isEqualTo(404);
+            try {
+                var checks = UrlCheckRepository.findByUrlId(url.getId());
+                assertThat(checks).hasSize(1);
+                assertThat(checks.getFirst().getStatusCode()).isEqualTo(404);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -209,10 +248,14 @@ class AppTest {
             client.post("/urls/" + url.getId() + "/checks");
             client.post("/urls/" + url.getId() + "/checks");
 
-            var checks = UrlCheckRepository.findByUrlId(url.getId());
-            assertThat(checks).hasSize(2);
-            assertThat(checks.get(0).getStatusCode()).isEqualTo(201);
-            assertThat(checks.get(1).getStatusCode()).isEqualTo(200);
+            try {
+                var checks = UrlCheckRepository.findByUrlId(url.getId());
+                assertThat(checks).hasSize(2);
+                assertThat(checks.get(0).getStatusCode()).isEqualTo(201);
+                assertThat(checks.get(1).getStatusCode()).isEqualTo(200);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 }
