@@ -35,7 +35,7 @@ class AppTest {
     }
 
     @BeforeEach
-    final void setUp() throws Exception {
+    final void setUp() throws IOException, SQLException {
         app = App.getApp();
         UrlCheckRepository.deleteAll();
         UrlRepository.deleteAll();
@@ -46,7 +46,7 @@ class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/");
             assertThat(response.code()).isEqualTo(200);
-            assert response.body() != null;
+            assertThat(response.body()).isNotNull();
             assertThat(response.body().string()).contains("Анализатор страниц");
         });
     }
@@ -56,7 +56,7 @@ class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/urls");
             assertThat(response.code()).isEqualTo(200);
-            assert response.body() != null;
+            assertThat(response.body()).isNotNull();
             assertThat(response.body().string()).contains("Сайты");
         });
     }
@@ -69,7 +69,7 @@ class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/urls/" + url.getId());
             assertThat(response.code()).isEqualTo(200);
-            assert response.body() != null;
+            assertThat(response.body()).isNotNull();
             assertThat(response.body().string()).contains("https://example.com");
         });
     }
@@ -115,7 +115,7 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            assert response.body() != null;
+            assertThat(response.body()).isNotNull();
             var body = response.body().string();
             assertThat(body).contains("Анализатор страниц");
 
@@ -146,7 +146,7 @@ class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
 
-            assert response.body() != null;
+            assertThat(response.body()).isNotNull();
             var body = response.body().string();
             assertThat(body).contains("Анализатор страниц");
 

@@ -12,7 +12,9 @@ import gg.jte.resolve.ResourceCodeResolver;
 import io.javalin.rendering.template.JavalinJte;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 public class App {
@@ -23,7 +25,7 @@ public class App {
         return TemplateEngine.create(codeResolver, ContentType.Html);
     }
 
-    public static Javalin getApp() throws Exception {
+    public static Javalin getApp() throws IOException, SQLException {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setMaximumPoolSize(5);
         hikariConfig.setMinimumIdle(2);
