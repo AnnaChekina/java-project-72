@@ -1,5 +1,6 @@
-package hexlet.code.model;
+package hexlet.code.service;
 
+import hexlet.code.model.UrlCheck;
 import kong.unirest.Unirest;
 import kong.unirest.HttpResponse;
 import org.jsoup.Jsoup;
@@ -8,52 +9,43 @@ import org.jsoup.nodes.Document;
 import java.net.URI;
 import java.net.URL;
 
-public class UrlUtils {
+public class UrlService {
 
-    public static String normalizeUrl(String inputUrl) {
+    public static String normalizeUrlWithPort(URI uri) {
         try {
-            String trimmedUrl = inputUrl.trim();
-
-            // Проверяем, что URL содержит протокол
-            if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
+            if (!uri.isAbsolute()) {
                 throw new IllegalArgumentException("URL должен содержать протокол (http:// или https://)");
             }
 
-            // Парсинг URL через URI
-            URI uri = new URI(trimmedUrl).normalize();
             URL url = uri.toURL();
 
-            // Извлечение protocol, host и port
             String protocol = url.getProtocol();
             String host = url.getHost();
             int port = url.getPort();
 
-            // Проверяем что host не пустой
             if (host == null || host.isEmpty()) {
                 throw new IllegalArgumentException("URL должен содержать доменное имя");
             }
 
-            StringBuilder normalized = new StringBuilder();
-            normalized.append(protocol).append("://").append(host);
-
-            // Добавление порта если он указан и не стандартный
-            if (port != -1 && port != 80 && port != 443) {
-                normalized.append(":").append(port);
+            if (!"http".equals(protocol) && !"https".equals(protocol)) {
+                throw new IllegalArgumentException("Поддерживаются только HTTP и HTTPS протоколы");
             }
 
-            return normalized.toString();
+            if (port == 80 && "http".equals(protocol)) {
+                return protocol + "://" + host;
+            } else if (port == 443 && "https".equals(protocol)) {
+                return protocol + "://" + host;
+            }
+
+            return String.format(
+                    "%s://%s%s",
+                    protocol,
+                    host,
+                    port == -1 ? "" : ":" + port
+            ).toLowerCase();
 
         } catch (Exception e) {
             throw new IllegalArgumentException("Некорректный URL: " + e.getMessage());
-        }
-    }
-
-    public static boolean isValidUrl(String url) {
-        try {
-            normalizeUrl(url);
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 

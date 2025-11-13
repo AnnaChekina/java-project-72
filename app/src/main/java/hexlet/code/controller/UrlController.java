@@ -6,13 +6,14 @@ import hexlet.code.model.Url;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
-import hexlet.code.model.UrlUtils;
+import hexlet.code.service.UrlService;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import static hexlet.code.util.Constants.FLASH;
 import static hexlet.code.util.Constants.FLASH_TYPE;
 import static hexlet.code.util.Constants.DANGER;
 
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class UrlController {
         ctx.render("index.jte", Map.of("page", page));
     }
 
-    public static void create(Context ctx) {
+    public static void create(Context ctx) throws SQLException {
         var inputUrl = ctx.formParam("url");
 
         if (inputUrl == null || inputUrl.trim().isEmpty()) {
@@ -38,32 +39,39 @@ public class UrlController {
             return;
         }
 
+        URI parsedUrl;
         try {
-            String normalizedUrl = UrlUtils.normalizeUrl(inputUrl);
-
-            if (UrlRepository.exists(normalizedUrl)) {
-                ctx.sessionAttribute(FLASH, "Страница уже существует");
-                ctx.sessionAttribute(FLASH_TYPE, "info");
-                ctx.redirect(NamedRoutes.urlsPath());
-                return;
-            }
-
-            var url = new Url(normalizedUrl);
-            UrlRepository.save(url);
-
-            ctx.sessionAttribute(FLASH, "Страница успешно добавлена");
-            ctx.sessionAttribute(FLASH_TYPE, "success");
-            ctx.redirect(NamedRoutes.urlsPath());
-
-        } catch (IllegalArgumentException e) {
+            parsedUrl = new URI(inputUrl.trim());
+        } catch (Exception e) {
             ctx.sessionAttribute(FLASH, "Некорректный URL");
             ctx.sessionAttribute(FLASH_TYPE, DANGER);
             ctx.redirect(NamedRoutes.rootPath());
-        } catch (SQLException e) {
-            ctx.sessionAttribute(FLASH, "Ошибка базы данных: " + e.getMessage());
+            return;
+        }
+
+        String normalizedUrl;
+        try {
+            normalizedUrl = UrlService.normalizeUrlWithPort(parsedUrl);
+        } catch (Exception e) {
+            ctx.sessionAttribute(FLASH, "Некорректный URL");
             ctx.sessionAttribute(FLASH_TYPE, DANGER);
             ctx.redirect(NamedRoutes.rootPath());
+            return;
         }
+
+        Url url = UrlRepository.findByName(normalizedUrl).orElse(null);
+
+        if (url != null) {
+            ctx.sessionAttribute(FLASH, "Страница уже существует");
+            ctx.sessionAttribute(FLASH_TYPE, "info");
+        } else {
+            Url newUrl = new Url(normalizedUrl);
+            UrlRepository.save(newUrl);
+            ctx.sessionAttribute(FLASH, "Страница успешно добавлена");
+            ctx.sessionAttribute(FLASH_TYPE, "success");
+        }
+
+        ctx.redirect(NamedRoutes.urlsPath());
     }
 
     public static void show(Context ctx) throws SQLException {
@@ -105,7 +113,7 @@ public class UrlController {
                 .orElseThrow(() -> new NotFoundResponse("URL not found"));
 
         try {
-            var urlCheck = UrlUtils.checkUrl(url.getName());
+            var urlCheck = UrlService.checkUrl(url.getName());
             urlCheck.setUrlId(url.getId());
 
             UrlCheckRepository.save(urlCheck);
