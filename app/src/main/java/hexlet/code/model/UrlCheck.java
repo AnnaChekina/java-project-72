@@ -3,8 +3,8 @@ package hexlet.code.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Setter
 @Getter
@@ -15,7 +15,7 @@ public final class UrlCheck {
     private String h1;
     private String description;
     private Long urlId;
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     public UrlCheck() { }
 
@@ -31,7 +31,8 @@ public final class UrlCheck {
         if (createdAt == null) {
             return "";
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        return sdf.format(createdAt);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        return createdAt.format(formatter);
     }
 }

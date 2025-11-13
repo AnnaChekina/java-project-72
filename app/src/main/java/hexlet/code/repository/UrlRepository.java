@@ -42,10 +42,10 @@ public class UrlRepository extends BaseRepository {
 
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp(CREATED_AT);
+                var timestamp = resultSet.getTimestamp(CREATED_AT);
                 var url = new Url(name);
                 url.setId(id);
-                url.setCreatedAt(createdAt);
+                url.setCreatedAt(timestamp != null ? timestamp.toLocalDateTime() : null);
                 return Optional.of(url);
             }
             return Optional.empty();
@@ -64,10 +64,10 @@ public class UrlRepository extends BaseRepository {
             if (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp(CREATED_AT);
+                var timestamp = resultSet.getTimestamp(CREATED_AT);
                 var url = new Url(name);
                 url.setId(id);
-                url.setCreatedAt(createdAt);
+                url.setCreatedAt(timestamp != null ? timestamp.toLocalDateTime() : null);
                 return Optional.of(url);
             }
             return Optional.empty();
@@ -85,11 +85,11 @@ public class UrlRepository extends BaseRepository {
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
-                var createdAt = resultSet.getTimestamp(CREATED_AT);
+                var timestamp = resultSet.getTimestamp(CREATED_AT);
 
                 var url = new Url(name);
                 url.setId(id);
-                url.setCreatedAt(createdAt);
+                url.setCreatedAt(timestamp != null ? timestamp.toLocalDateTime() : null);
                 result.add(url);
             }
             return result;

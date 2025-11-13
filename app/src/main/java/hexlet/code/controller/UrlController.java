@@ -40,17 +40,9 @@ public class UrlController {
         }
 
         URI parsedUrl;
-        try {
-            parsedUrl = new URI(inputUrl.trim());
-        } catch (Exception e) {
-            ctx.sessionAttribute(FLASH, "Некорректный URL");
-            ctx.sessionAttribute(FLASH_TYPE, DANGER);
-            ctx.redirect(NamedRoutes.rootPath());
-            return;
-        }
-
         String normalizedUrl;
         try {
+            parsedUrl = new URI(inputUrl.trim());
             normalizedUrl = UrlService.normalizeUrlWithPort(parsedUrl);
         } catch (Exception e) {
             ctx.sessionAttribute(FLASH, "Некорректный URL");

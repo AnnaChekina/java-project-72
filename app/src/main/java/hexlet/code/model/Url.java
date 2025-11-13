@@ -3,17 +3,15 @@ package hexlet.code.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Setter
 @Getter
-public  final class Url {
+public final class Url {
     private Long id;
     private String name;
-    private Timestamp createdAt;
-
-    public Url() { }
+    private LocalDateTime createdAt;
 
     public Url(String name) {
         this.name = name;
@@ -23,7 +21,8 @@ public  final class Url {
         if (createdAt == null) {
             return "";
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        return sdf.format(createdAt);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        return createdAt.format(formatter);
     }
 }
