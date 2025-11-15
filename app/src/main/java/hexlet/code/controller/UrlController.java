@@ -7,6 +7,7 @@ import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import hexlet.code.service.UrlService;
+import hexlet.code.service.FormatterService;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import static hexlet.code.util.Constants.FLASH;
@@ -72,7 +73,8 @@ public class UrlController {
                 .orElseThrow(() -> new NotFoundResponse("URL not found"));
 
         var checks = UrlCheckRepository.findByUrlId(id);
-        var page = new UrlPage(url, checks);
+        var formattedUrlCreatedAt = FormatterService.formatDateTime(url.getCreatedAt());
+        var page = new UrlPage(url, checks, formattedUrlCreatedAt);
         page.setFlash(ctx.consumeSessionAttribute(FLASH));
         page.setFlashType(ctx.consumeSessionAttribute(FLASH_TYPE));
 
@@ -87,7 +89,8 @@ public class UrlController {
         for (var url : urls) {
             var lastCheck = latestChecks.get(url.getId());
             var lastStatusCode = lastCheck != null ? lastCheck.getStatusCode() : null;
-            var lastCheckDate = lastCheck != null ? lastCheck.getFormattedCreatedAt() : "";
+            var lastCheckDate = lastCheck != null
+                    ? FormatterService.formatDateTime(lastCheck.getCreatedAt()) : "";
 
             urlWithChecks.add(new UrlsPage.UrlWithCheck(url, lastStatusCode, lastCheckDate));
         }

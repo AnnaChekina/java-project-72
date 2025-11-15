@@ -12,9 +12,11 @@ import java.util.List;
 public class UrlPage extends BasePage {
     private Url url;
     private List<UrlCheck> checks;
+    private String formattedUrlCreatedAt;
 
-    public UrlPage(Url url, List<UrlCheck> checks) {
+    public UrlPage(Url url, List<UrlCheck> checks, String formattedUrlCreatedAt) {
         this.url = url;
         this.checks = checks;
+        this.formattedUrlCreatedAt = formattedUrlCreatedAt;
     }
 }

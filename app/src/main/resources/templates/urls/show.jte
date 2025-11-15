@@ -1,5 +1,6 @@
 @import hexlet.code.dto.UrlPage
 @import hexlet.code.util.NamedRoutes
+@import hexlet.code.service.FormatterService
 @param UrlPage page
 
 @template.layout.page(
@@ -24,7 +25,7 @@
                                     <div class="card-body">
                                         <p><strong>ID:</strong> ${page.getUrl().getId()}</p>
                                         <p><strong>URL:</strong> ${page.getUrl().getName()}</p>
-                                        <p><strong>Дата создания:</strong> ${page.getUrl().getFormattedCreatedAt()}</p>
+                                        <p><strong>Дата создания:</strong> ${page.getFormattedUrlCreatedAt()}</p>
                                     </div>
                                 </div>
                             </div>
@@ -68,7 +69,7 @@
                                                         ${check.getDescription() != null ? check.getDescription() : ""}
                                                     @endif
                                                 </td>
-                                                <td>${check.getFormattedCreatedAt()}</td>
+                                                <td>${FormatterService.formatDateTime(check.getCreatedAt())}</td>
                                             </tr>
                                         @endfor
                                     </tbody>
